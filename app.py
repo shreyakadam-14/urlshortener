@@ -136,50 +136,48 @@ def index():
     return render_template('index.html')
 
 
+# Update your logging configuration at the top of app.py
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')  # Optional: log to file
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Then modify your redirect_url function:
 @app.route('/<short_code>')
 def redirect_url(short_code):
     try:
         logger.info(f"Attempting redirect for code: {short_code}")
 
-        # Fetch the URL from Supabase with better error handling
+        # Fetch the URL from Supabase
         response = supabase.table('urls') \
             .select('original_url') \
             .eq('short_code', short_code) \
-            .maybe_single() \
             .execute()
 
-        # Debugging: Print the full response
-        logger.debug(f"Supabase response: {response}")
+        # Better response handling
+        if not response.data or len(response.data) == 0:
+            logger.warning(f"Short code not found: {short_code}")
+            return render_template('error.html', error="URL not found"), 404
 
-        if response.data and 'original_url' in response.data:
-            original_url = response.data['original_url']
+        original_url = response.data[0]['original_url']
+        
+        # Update click count
+        try:
+            supabase.rpc('increment_clicks', {'code_param': short_code}).execute()
+        except Exception as e:
+            logger.error(f"Failed to update click count: {str(e)}")
 
-            # Ensure URL has proper scheme
-            if not original_url.startswith(('http://', 'https://')):
-                original_url = f'https://{original_url}'
-
-            logger.info(f"Redirecting to: {original_url}")
-
-            # Update click count (non-blocking)
-            try:
-                supabase.table('urls') \
-                    .update({'clicks': supabase.rpc('increment')}) \
-                    .eq('short_code', short_code) \
-                    .execute()
-            except Exception as e:
-                logger.error(f"Click count update failed: {str(e)}")
-                # Don't fail redirect if click update fails
-
-            return redirect(original_url, code=302)
-
-        logger.warning(f"Short code not found: {short_code}")
-        flash('Short URL not found', 'error')
-        return render_template('error.html', error="URL not found"), 404
+        logger.info(f"Redirecting {short_code} to {original_url}")
+        return redirect(original_url, code=302)
 
     except Exception as e:
-        logger.error(f"Redirect failed: {str(e)}", exc_info=True)
-        flash('Redirect error occurred', 'error')
-        return render_template('error.html', error="Redirect failed"), 500
+        logger.error(f"Redirect failed for {short_code}: {str(e)}", exc_info=True)
+        return render_template('error.html', error="Server error"), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

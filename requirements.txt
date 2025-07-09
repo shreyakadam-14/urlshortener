@@ -1,7 +1,0 @@
-gunicorn==21.2.0
-flask==3.0.0
-supabase==2.7.1
-python-dotenv==1.0.0
-qrcode[pillow]==7.4.2
-validators==0.22.0
-requests==2.31.0  # Explicitly added as supabase dependency

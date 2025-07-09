@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/">
+            <div class="form-group">
+                <label for="url">Enter your long URL:</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com/very-long-url" required>
+            </div>
+
+            <div class="form-group">
+                <label for="custom_code">Custom short code (optional):</label>
+                <input type="text" id="custom_code" name="custom_code" placeholder="my-custom-link" pattern="[a-zA-Z0-9_-]{3,20}" title="3-20 alphanumeric characters, underscores or hyphens">
+                <small>Leave blank for auto-generated code</small>
+            </div>
+
+            <button type="submit">Shorten URL</button>
+        </form>
+
+        {% if short_url %}
+        <div class="result">
+            <h2>Your shortened URL:</h2>
+            <div class="short-url">
+                <a href="{{ short_url }}" target="_blank" id="short-url">{{ short_url }}</a>
+                <button onclick="copyToClipboard('{{ short_url }}')">Copy</button>
+            </div>
+
+            <div class="qr-code">
+                <h3>QR Code:</h3>
+                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code for {{ short_url }}">
+                <a href="data:image/png;base64,{{ qr_code }}" download="qrcode.png" class="download-btn">
+                    Download QR Code
+                </a>
+            </div>
+
+            <div class="original-url">
+                <strong>Original URL:</strong>
+                <a href="{{ original_url }}" target="_blank">{{ original_url }}</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => alert('Copied to clipboard!'))
+                .catch(err => console.error('Failed to copy: ', err));
+        }
+    </script>
+</body>
+</html>

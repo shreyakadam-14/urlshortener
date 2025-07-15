@@ -10,34 +10,25 @@ from io import BytesIO
 import base64
 import logging
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', secrets.token_hex(32))
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Supabase
 supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 supabase = create_client(supabase_url, supabase_key)
 
-
 def generate_random_code(length=6):
-    """Generate a random alphanumeric code"""
     return secrets.token_urlsafe(length)[:length]
 
-
 def validate_custom_code(code):
-    """Validate custom short code"""
     return code.isalnum() and 3 <= len(code) <= 20
 
-
 def create_qr_code(url):
-    """Generate QR code and return as base64"""
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -52,29 +43,22 @@ def create_qr_code(url):
     img.save(buffered)
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-
 def normalize_url(url):
-    """Ensure URL has proper scheme and format"""
     url = url.strip()
     if not url:
         return None
 
-    # Add scheme if missing
     if not url.startswith(('http://', 'https://')):
         url = 'https://' + url
 
-    # Remove any whitespace or invalid characters
     url = ''.join(url.split())
     return url.lower()
 
-
 def is_valid_url(url):
-    """Comprehensive URL validation"""
     try:
         return validators.url(url)
     except validators.ValidationError:
         return False
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -82,12 +66,10 @@ def index():
         original_url = normalize_url(request.form.get('url'))
         custom_code = request.form.get('custom_code', '').strip()
 
-        # Validate URL
         if not original_url or not is_valid_url(original_url):
             flash('Please enter a valid URL (e.g., https://example.com)', 'error')
             return redirect(url_for('index'))
 
-        # Generate or validate custom code
         if custom_code:
             if not validate_custom_code(custom_code):
                 flash('Custom code must be 3-20 alphanumeric characters', 'error')
@@ -96,7 +78,6 @@ def index():
         else:
             short_code = generate_random_code()
 
-            # Ensure code is unique (try up to 5 times)
             attempts = 0
             while attempts < 5:
                 existing = supabase.table('urls').select('short_code').eq('short_code', short_code).execute()
@@ -108,7 +89,6 @@ def index():
                 flash('Could not generate a unique short code. Please try again.', 'error')
                 return redirect(url_for('index'))
 
-        # Insert into database
         try:
             response = supabase.table('urls').insert({
                 'original_url': original_url,
@@ -135,49 +115,45 @@ def index():
 
     return render_template('index.html')
 
-
-# Update your logging configuration at the top of app.py
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('app.log')  # Optional: log to file
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Then modify your redirect_url function:
 @app.route('/<short_code>')
 def redirect_url(short_code):
     try:
         logger.info(f"Attempting redirect for code: {short_code}")
 
-        # Fetch the URL from Supabase
         response = supabase.table('urls') \
             .select('original_url') \
             .eq('short_code', short_code) \
+            .maybe_single() \
             .execute()
 
-        # Better response handling
-        if not response.data or len(response.data) == 0:
-            logger.warning(f"Short code not found: {short_code}")
-            return render_template('error.html', error="URL not found"), 404
+        logger.debug(f"Supabase response: {response}")
 
-        original_url = response.data[0]['original_url']
-        
-        # Update click count
-        try:
-            supabase.rpc('increment_clicks', {'code_param': short_code}).execute()
-        except Exception as e:
-            logger.error(f"Failed to update click count: {str(e)}")
+        if response.data and 'original_url' in response.data:
+            original_url = response.data['original_url']
 
-        logger.info(f"Redirecting {short_code} to {original_url}")
-        return redirect(original_url, code=302)
+            if not original_url.startswith(('http://', 'https://')):
+                original_url = f'https://{original_url}'
+
+            logger.info(f"Redirecting to: {original_url}")
+
+            try:
+                supabase.table('urls') \
+                    .update({'clicks': supabase.rpc('increment')}) \
+                    .eq('short_code', short_code) \
+                    .execute()
+            except Exception as e:
+                logger.error(f"Click count update failed: {str(e)}")
+
+            return redirect(original_url, code=302)
+
+        logger.warning(f"Short code not found: {short_code}")
+        flash('Short URL not found', 'error')
+        return render_template('error.html', error="URL not found"), 404
 
     except Exception as e:
-        logger.error(f"Redirect failed for {short_code}: {str(e)}", exc_info=True)
-        return render_template('error.html', error="Server error"), 500
+        logger.error(f"Redirect failed: {str(e)}", exc_info=True)
+        flash('Redirect error occurred', 'error')
+        return render_template('error.html', error="Redirect failed"), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

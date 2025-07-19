@@ -3,30 +3,30 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #000;
-    color: #e0e0e0;
-    background-image: radial-gradient(circle at center, #222 0%, #000 100%);
+    background-color: #fff0f5;
+    color: #333;
+    background-image: radial-gradient(circle at center, #ffe6ee 0%, #fff0f5 100%);
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(57, 255, 20, 0.1);
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.3),
-                0 0 30px rgba(57, 255, 20, 0.1),
-                inset 0 0 10px rgba(57, 255, 20, 0.2);
+    box-shadow: 0 0 15px rgba(255, 182, 193, 0.3),
+                0 0 30px rgba(255, 182, 193, 0.1),
+                inset 0 0 10px rgba(255, 182, 193, 0.2);
     margin-top: 50px;
-    border: 1px solid rgba(57, 255, 20, 0.3);
+    border: 1px solid rgba(255, 182, 193, 0.3);
     backdrop-filter: blur(5px);
 }
 
 h1 {
-    color: #39ff14;
+    color: #ff85a2;
     text-align: center;
     margin-bottom: 30px;
-    text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+    text-shadow: 0 0 5px rgba(255, 182, 193, 0.5);
 }
 
 .form-group {
@@ -37,31 +37,31 @@ label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
-    color: #39ff14;
+    color: #ff85a2;
 }
 
 input[type="url"],
 input[type="text"] {
     width: 100%;
     padding: 10px;
-    border: 1px solid #39ff14;
+    border: 1px solid #ffb6c1;
     border-radius: 4px;
     font-size: 16px;
     box-sizing: border-box;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
 }
 
 input[type="url"]:focus,
 input[type="text"]:focus {
     outline: none;
-    box-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+    box-shadow: 0 0 8px rgba(255, 182, 193, 0.5);
 }
 
 button {
-    background-color: rgba(57, 255, 20, 0.2);
-    color: #39ff14;
-    border: 1px solid #39ff14;
+    background-color: rgba(255, 182, 193, 0.3);
+    color: #d23c67;
+    border: 1px solid #ffb6c1;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
@@ -71,16 +71,16 @@ button {
 }
 
 button:hover {
-    background-color: rgba(57, 255, 20, 0.4);
-    box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+    background-color: rgba(255, 182, 193, 0.5);
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
 }
 
 .result {
     margin-top: 30px;
     padding: 20px;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 4px;
-    border: 1px solid rgba(57, 255, 20, 0.2);
+    border: 1px solid rgba(255, 182, 193, 0.3);
 }
 
 .short-url {
@@ -91,12 +91,12 @@ button:hover {
 .short-url a {
     flex-grow: 1;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
     word-break: break-all;
-    color: #39ff14;
+    color: #d23c67;
     text-decoration: none;
-    border: 1px solid rgba(57, 255, 20, 0.3);
+    border: 1px solid rgba(255, 182, 193, 0.3);
 }
 
 .short-url button {
@@ -113,7 +113,7 @@ button:hover {
     max-width: 200px;
     margin: 0 auto;
     display: block;
-    border: 1px solid rgba(57, 255, 20, 0.3);
+    border: 1px solid rgba(255, 182, 193, 0.3);
     background-color: white;
     padding: 10px;
 }
@@ -122,24 +122,24 @@ button:hover {
     display: inline-block;
     margin-top: 10px;
     padding: 8px 16px;
-    background-color: rgba(57, 255, 20, 0.2);
-    color: #39ff14;
+    background-color: rgba(255, 182, 193, 0.3);
+    color: #d23c67;
     text-decoration: none;
     border-radius: 4px;
-    border: 1px solid #39ff14;
+    border: 1px solid #ffb6c1;
 }
 
 .download-btn:hover {
-    background-color: rgba(57, 255, 20, 0.4);
+    background-color: rgba(255, 182, 193, 0.5);
 }
 
 .original-url {
     margin-top: 20px;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
-    color: #e0e0e0;
-    border: 1px solid rgba(57, 255, 20, 0.2);
+    color: #333;
+    border: 1px solid rgba(255, 182, 193, 0.3);
 }
 
 .flash-messages {
@@ -153,15 +153,15 @@ button:hover {
 }
 
 .flash.error {
-    background-color: rgba(248, 215, 218, 0.2);
-    color: #ff6b6b;
-    border: 1px solid rgba(245, 198, 203, 0.3);
+    background-color: rgba(248, 215, 218, 0.5);
+    color: #d23c67;
+    border: 1px solid rgba(245, 198, 203, 0.5);
 }
 
 .flash.success {
-    background-color: rgba(212, 237, 218, 0.2);
-    color: #39ff14;
-    border: 1px solid rgba(195, 230, 203, 0.3);
+    background-color: rgba(255, 228, 230, 0.5);
+    color: #d23c67;
+    border: 1px solid rgba(255, 182, 193, 0.5);
 }
 
 @media (max-width: 600px) {
